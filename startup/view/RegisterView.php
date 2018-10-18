@@ -1,5 +1,8 @@
 <?php
     class RegisterView {
+        private static $name = 'RegisterView::UserName';
+        private static $password = 'RegisterView::Password';
+        private static $passwordRepeat = 'RegisterView::PasswordRepeat';
 
         public function response () {
             
@@ -27,6 +30,31 @@
                     </fieldset>
                 </form>
             ";
+        }
+
+        public function getRequestUserName() {
+            if(isset($_POST[self::$name])) {
+                return $_POST[self::$name];
+            } else {
+                return false;
+            }
+        }
+    
+    
+        public function getRequestPassWord () {
+            if(isset($_POST[self::$password])) {
+                return $_POST[self::$password];
+            } else {
+                return false;
+            }
+        }
+
+        public function getRequestPassWordRepeat () {
+            if(isset($_POST[self::$passwordRepeat])) {
+                return $_POST[self::$passwordRepeat];
+            } else {
+                return false;
+            }
         }
 
         public function getButton () {

@@ -8,6 +8,7 @@ require_once('model/LogInManager.php');
 require_once('controller/LogInController.php');
 require_once('model/RegisterManager.php');
 require_once('view/RegisterView.php');
+require_once('controller/RegisterController.php');
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
 error_reporting(E_ALL);
@@ -35,8 +36,9 @@ $app->initializeLogIn();
 if (isset($_GET['register'])) {
     $registerManager = new \model\RegisterManager();
     $rv = new RegisterView($registerManager);
+    $rc = new \controller\RegisterController($rv, $lv, $registerManager);
+    $rc->initializeRegistration();
     $lv->render(false, $rv, $dtv);
 } else {
     $lv->render(false, $v, $dtv);
 }
-

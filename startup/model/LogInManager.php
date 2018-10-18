@@ -1,5 +1,7 @@
 <?php
     namespace model;
+    
+    require_once('model/DBconnection.php');
 
     class LogInManager {
         public $loggedIn = false;
@@ -11,9 +13,10 @@
                 $_SESSION['loggedIn'] = null;
                 $this->loggedIn = null;
                 session_destroy();
-                header('Location: /');
+                header('Location: /Lab3_1DV610_vf222cg/startup/');
             }
             else if ($username == 'Admin' && $password == 'Password' && $willBeRemembered == false && $encryptedPassword == false) {
+                //Börja här
                 $this->loggedIn = true;
                 $_SESSION['loggedIn'] = true;
                 $this->message = 'Welcome';
@@ -51,5 +54,9 @@
             } else if (empty($password)) {
                 $this->message = 'Password is missing';
             } 
+        }
+
+        public function hasAuthUser () {
+
         }
     }
