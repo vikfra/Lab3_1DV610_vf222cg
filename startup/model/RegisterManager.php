@@ -18,7 +18,7 @@
             
             $sql = "INSERT INTO users VALUES (?, ?)";
             $stmt = mysqli_prepare($conn, $sql);
-            $stmt->bind_param("ss", $username, $password);
+            $stmt->bind_param("ss", $username, md5($password));
             $stmt->execute();
 
         }

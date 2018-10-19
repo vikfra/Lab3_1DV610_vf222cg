@@ -1,51 +1,25 @@
 <?php
     namespace model;
-    
+
     require_once('model/DBconnection.php');
 
     class LogInManager {
         public $loggedIn = false;
         public $message;
 
-        public function authenticateLogIn($username, $password, $willBeRemembered, $encryptedPassword) {
-            if(isset($_SESSION['browser']) && $_SESSION['browser'] !== $_SERVER['HTTP_USER_AGENT']) {
-                $this->message = '';
-                $_SESSION['loggedIn'] = null;
+        public function authenticateLogIn($username, $password, $willBeRemembered, $authWithCookie) {
+            if ($this->isAuthenticated($username, $password)) {
+                $this->loggedIn = true;
+                $_SESSION['loggedIn'] = true;
+                $this->setWelcomeMsg($authWithCookie, $willBeRemembered);
+
+            } else {
+                // Kan vara fel, Om Admin är rätt och pw fel.
+                $this->setErrorMsg($authWithCookie, $willBeRemembered);
                 $this->loggedIn = null;
-                session_destroy();
-                header('Location: /Lab3_1DV610_vf222cg/startup/');
+                $_SESSION['loggedIn'] = null;
+                $this->unsetCookies();
             }
-            else if ($username == 'Admin' && $password == 'Password' && $willBeRemembered == false && $encryptedPassword == false) {
-                //Börja här
-                $this->loggedIn = true;
-                $_SESSION['loggedIn'] = true;
-                $this->message = 'Welcome';
-
-            } else if ($username == 'Admin' && $password == md5('Password') && $willBeRemembered == false && $encryptedPassword == true) {
-                $this->loggedIn = true;
-                $_SESSION['loggedIn'] = true;
-                $this->message = 'Welcome back with cookie';
-
-            } else if ($username == 'Admin' && $password !== md5('Password') && $encryptedPassword == true) {
-                $this->message = 'Wrong information in cookies';
-                $this->loggedIn = null;
-                $_SESSION['loggedIn'] = null;
-
-                unset($_COOKIE['username']);
-                unset($_COOKIE['CookieName']);
-                unset($_COOKIE['CookiePassword']);
-                setcookie ('CookieName', '', time() - (86400 * 30));
-                setcookie ('CookiePassword', '', time() - (86400 * 30));
-                setcookie ('username', '', time() - (86400 * 30));
-
-            } else if ($username == 'Admin' && $password == 'Password' && $willBeRemembered == true && $encryptedPassword == false) {
-                $this->loggedIn = true;
-                $_SESSION['loggedIn'] = true;
-                $this->message = 'Welcome and you will be remembered';
-
-            } else if ($username && $password) {
-                $this->message = 'Wrong name or password';
-            } 
         }
 
         public function validateLogIn ($username, $password) {
@@ -56,7 +30,88 @@
             } 
         }
 
-        public function hasAuthUser () {
+        public function isAuthenticated($username, $password) {
+            if ($this->hasAuthUser($username, $password) || $this->hasAuthAdmin($username, $password)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
+        public function hasAuthUser ($username, $password) {
+            if($this->isSessionHijacked()) {
+                return false;
+            }
+    
+            $conn = DatabaseHelper::DBconnection();
+            $sql = "SELECT * FROM users WHERE username=? and password=?";
+            $stmt = mysqli_prepare($conn, $sql);
+            $stmt->bind_param("ss", $username, $password);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if($result->num_rows == 1) {
+                echo 'Logged in!';
+                return true;
+            } else {
+                echo 'Not Logged in';
+                return false;
+            }
+
+            $stmt->close();
+        }
+
+        public function hasAuthAdmin ($username, $password) {
+            if($this->isSessionHijacked()) {
+                return false;
+            } else if($username == 'Admin' && $password == 'Password') {
+                return true;
+            } else if ($username == 'Admin' && $password == md5('Password')) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public function isSessionHijacked() {
+            if(isset($_SESSION['browser']) && $_SESSION['browser'] !== $_SERVER['HTTP_USER_AGENT']) {
+                $this->message = '';
+                $_SESSION['loggedIn'] = null;
+                $this->loggedIn = null;
+                session_destroy();
+                header('Location: /Lab3_1DV610_vf222cg/startup/'); ///Flytta till controller
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public function setWelcomeMsg ($authWithCookie, $willBeRemembered) {
+            
+            if ($willBeRemembered == true) {
+                $this->message = 'Welcome and you will be remembered';
+            } else if($authWithCookie == false) {
+                $this->message = 'Welcome';
+            } else {
+                $this->message = 'Welcome back with cookie';
+                echo 'setwelcomemsdssg';
+            }
+        }
+
+        public function setErrorMsg($authWithCookie, $willBeRemembered) {
+            if ($authWithCookie == true) {
+                $this->message = 'Wrong information in cookies';
+            } else {
+                $this->message = 'Wrong name or password';
+            }
+        }
+
+        public function unsetCookies () {
+            unset($_COOKIE['username']);
+            unset($_COOKIE['CookieName']);
+            unset($_COOKIE['CookiePassword']);
+            setcookie ('CookieName', '', time() - (86400 * 30));
+            setcookie ('CookiePassword', '', time() - (86400 * 30));
+            setcookie ('username', '', time() - (86400 * 30));
         }
     }

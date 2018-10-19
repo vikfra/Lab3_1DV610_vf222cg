@@ -4,7 +4,7 @@
     class DatabaseHelper {
   
         
-        public function DBconnection() {
+        public static function DBconnection() {
             $servername = "localhost";
             $username = "cruduser";
             $password = "user123";

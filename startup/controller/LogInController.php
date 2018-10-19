@@ -25,15 +25,14 @@
 
                 if(isset($_COOKIE['username'])) {
                     $_COOKIE['username'] = $username;
-                    
                 }
 
                 $validLogIn = $this->manager->validateLogIn($username, $password);
-                $authenticatedUser = $this->manager->authenticateLogIn($username, $password, false, false);
+                $authenticatedUser = $this->manager->authenticateLogIn($username, md5($password), false, false);
 
             } else if ($this->view->userWillBeRemembered()) {
                 $validLogIn = $this->manager->validateLogIn($username, $password);
-                $authenticatedUser = $this->manager->authenticateLogIn($username, $password, true, false);
+                $authenticatedUser = $this->manager->authenticateLogIn($username, md5($password), true, false);
                 setcookie('CookieName', $username, time() + (86400 * 30));
                 setcookie('CookiePassword', $encryptedPassword, time() + (86400 * 30));
                 
