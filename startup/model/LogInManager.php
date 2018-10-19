@@ -11,6 +11,7 @@
             if ($this->isAuthenticated($username, $password)) {
                 $this->loggedIn = true;
                 $_SESSION['loggedIn'] = true;
+                $_SESSION['username'] = $username;
                 $this->setWelcomeMsg($authWithCookie, $willBeRemembered);
 
             } else {
@@ -59,6 +60,7 @@
             }
 
             $stmt->close();
+            mysqli_close($conn);
         }
 
         public function hasAuthAdmin ($username, $password) {
@@ -94,7 +96,6 @@
                 $this->message = 'Welcome';
             } else {
                 $this->message = 'Welcome back with cookie';
-                echo 'setwelcomemsdssg';
             }
         }
 

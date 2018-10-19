@@ -2,7 +2,6 @@
     namespace model;
 
     class DatabaseHelper {
-  
         
         public static function DBconnection() {
             $servername = "localhost";

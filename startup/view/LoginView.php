@@ -28,7 +28,8 @@ class LoginView {
 
 		if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] == true && $this->userHasLogOut() == false) {
 			if (!isset($_SESSION['refreshed'])) {
-				$response = $this->generateLogoutButtonHTML($message);
+				$response = $this->generateBlogFeedButtonHTML();
+				$response .= $this->generateLogoutButtonHTML($message);
 			} else {
 				$message = '';
 				$response = $this->generateLogoutButtonHTML($message);
@@ -89,6 +90,10 @@ class LoginView {
 				</fieldset>
 			</form>
 		';
+	}
+
+	private function generateBlogFeedButtonHTML() {
+		return "<a href='?blog'>Check all blog posts</a>";
 	}
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES

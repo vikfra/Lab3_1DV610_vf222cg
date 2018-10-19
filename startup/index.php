@@ -9,6 +9,9 @@ require_once('controller/LogInController.php');
 require_once('model/RegisterManager.php');
 require_once('view/RegisterView.php');
 require_once('controller/RegisterController.php');
+require_once('model/BlogManager.php');
+require_once('view/BlogView.php');
+require_once('controller/BlogController.php');
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
 error_reporting(E_ALL);
@@ -39,6 +42,14 @@ if (isset($_GET['register'])) {
     $rc = new \controller\RegisterController($rv, $lv, $registerManager);
     $rc->initializeRegistration();
     $lv->render(false, $rv, $dtv);
+
+} else if (isset($_GET['blog'])) {
+    $blogManager = new \model\BlogManager();
+    $bv = new BlogView($blogManager);
+    $bc = new \controller\BlogController($bv, $lv, $blogManager);
+    $bc->initializeBlogPost();
+    $lv->render(false, $bv, $dtv);
+
 } else {
     $lv->render(false, $v, $dtv);
 }
