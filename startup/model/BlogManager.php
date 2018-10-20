@@ -6,12 +6,11 @@
     class BlogManager {
         public $blogPosts = array();
 
-        public function addBlogPost ($username, $blogContent) {
+        public function addBlogPost ($username, $blogContent, $blogTitle) {
             $conn = DatabaseHelper::DBconnection();
-           
-            $sql = "INSERT INTO blogposts (blog_creator, blog_content) VALUES (?, ?)";
+            $sql = "INSERT INTO blogposts (blog_title, blog_creator, blog_content) VALUES (?, ?, ?)";
             $stmt = mysqli_prepare($conn, $sql);
-            $stmt->bind_param("ss", $username, $blogContent);
+            $stmt->bind_param("sss", $blogTitle, $username, $blogContent);
             $stmt->execute();
 
             $conn->close();

@@ -20,6 +20,7 @@ class LayoutView {
           <h1>Assignment 3</h1>
           ' . $this->renderIsLoggedIn(isset($_SESSION['loggedIn']), $v) . '
           <div class="container">
+            <div=class"header">' . $this->generateBlogFeedButtonHTML(isset($_SESSION['loggedIn'])) . $this->generateCreateBlogButtonHTML(isset($_SESSION['loggedIn'])) . '</div>
               ' . $v->response() . '
               
               ' . $dtv->show() . '
@@ -35,6 +36,23 @@ class LayoutView {
     }
     else {
       return $v->getButton() . '<h2>Not logged in</h2>';
+    }
+  }
+
+  private function generateCreateBlogButtonHTML($isLoggedIn) {
+    if($isLoggedIn) {
+      return "<a href='?createBlog'>Create new blog post</a>";
+    } else {
+      return '';
+    }
+
+  }
+
+  private function generateBlogFeedButtonHTML($isLoggedIn) {
+    if($isLoggedIn) {
+      return "<a href='?blog'>Check all blog posts</a>";
+    } else {
+      return '';
     }
   }
 }

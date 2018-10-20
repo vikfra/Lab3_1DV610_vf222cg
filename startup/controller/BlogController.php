@@ -18,7 +18,7 @@
             $blogContent = $this->view->getBlogPost();
 
             if($username && $blogContent) {
-                $this->manager->addBlogPost($username, $_POST['BlogView::BlogContent']);
+                $this->manager->addBlogPost($username, $_POST['BlogView::BlogContent'], $_POST['blogTitle']);
 
             }
         }

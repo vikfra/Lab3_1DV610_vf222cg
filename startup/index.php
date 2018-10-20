@@ -43,7 +43,7 @@ if (isset($_GET['register'])) {
     $rc->initializeRegistration();
     $lv->render(false, $rv, $dtv);
 
-} else if (isset($_GET['blog'])) {
+} else if (isset($_GET['blog']) || isset($_GET['createBlog'])) {
     $blogManager = new \model\BlogManager();
     $bv = new BlogView($blogManager);
     $bc = new \controller\BlogController($bv, $lv, $blogManager);
