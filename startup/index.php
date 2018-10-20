@@ -48,6 +48,7 @@ if (isset($_GET['register'])) {
     $bv = new BlogView($blogManager);
     $bc = new \controller\BlogController($bv, $lv, $blogManager);
     $bc->initializeBlogPost();
+    $bc->getBlogPostArray();
     $lv->render(false, $bv, $dtv);
 
 } else {

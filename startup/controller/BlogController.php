@@ -12,14 +12,18 @@
             $this->manager = $manager;
         }
 
-        //Byt namn
+        //Byt namn flytta på Post och Session-variabel
         public function initializeBlogPost () {
             $username = $_SESSION['username'];
             $blogContent = $this->view->getBlogPost();
 
             if($username && $blogContent) {
                 $this->manager->addBlogPost($username, $_POST['BlogView::BlogContent']);
-                header('Location: /Lab3_1DV610_vf222cg/startup/');
+
             }
+        }
+
+        public function getBlogPostArray () {
+            $this->manager->getBlogPosts();
         }
     }
