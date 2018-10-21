@@ -8,11 +8,20 @@
 
         public function addBlogPost ($username, $blogContent, $blogTitle) {
             $conn = DatabaseHelper::DBconnection();
-            $sql = "INSERT INTO blogposts (blog_title, blog_creator, blog_content) VALUES (?, ?, ?)";
-            $stmt = mysqli_prepare($conn, $sql);
-            $stmt->bind_param("sss", $blogTitle, $username, $blogContent);
-            $stmt->execute();
+        
+            if($this->hasImage()) {
+                $img = file_get_contents ($_FILES['blogPic']['tmp_name']);
+                $sql = "INSERT INTO blogposts (blog_title, blog_creator, blog_content, blog_img) VALUES (?, ?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $sql);
+                $stmt->bind_param("ssss", $blogTitle, $username, $blogContent, $img);
 
+            } else {
+                $sql = "INSERT INTO blogposts (blog_title, blog_creator, blog_content) VALUES (?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $sql);
+                $stmt->bind_param("sss", $blogTitle, $username, $blogContent);
+                
+            }
+            $stmt->execute();
             $conn->close();
         }
 
@@ -31,5 +40,15 @@
             }
 
             $conn->close();
+        }
+
+        public function hasImage () {
+            $imageSize = getimagesize($_FILES["blogPic"]["tmp_name"]);
+
+            if($imageSize !== false) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
