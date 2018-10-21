@@ -48,7 +48,7 @@
             return $response;
         }
 
-        public function getBlogContent (): bool {
+        public function getBlogContent () {
             if(isset($_POST[self::$blogContent])) {
                 return $_POST[self::$blogContent];
             } else {
@@ -56,7 +56,7 @@
             }
         }
 
-        public function getBlogTitle (): bool {
+        public function getBlogTitle () {
             if(isset($_POST[self::$blogTitle])) {
                 return $_POST[self::$blogTitle];
             } else {

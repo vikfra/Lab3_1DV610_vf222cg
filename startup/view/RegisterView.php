@@ -35,7 +35,7 @@
             ";
         }
 
-        public function getRequestUserName(): bool {
+        public function getRequestUserName() {
             if(isset($_POST[self::$name])) {
                 return $_POST[self::$name];
             } else {
@@ -44,7 +44,7 @@
         }
     
     
-        public function getRequestPassWord(): bool {
+        public function getRequestPassWord() {
             if(isset($_POST[self::$password])) {
                 return $_POST[self::$password];
             } else {
@@ -52,7 +52,7 @@
             }
         }
 
-        public function getRequestPassWordRepeat(): bool {
+        public function getRequestPassWordRepeat() {
             if(isset($_POST[self::$passwordRepeat])) {
                 return $_POST[self::$passwordRepeat];
             } else {
