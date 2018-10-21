@@ -2,28 +2,36 @@
     namespace controller;
 
     class BlogController {
-        private $view;
+        private $blogView;
         private $layoutView;
-        private $manager;
+        private $blogManager;
+        private $logInManager;
 
-        public function __construct($view, $layoutView, \model\BlogManager $manager) {
-            $this->view = $view;
+        public function __construct(\view\BlogView $blogView, \view\LayoutView $layoutView, \model\BlogManager $blogManager, \model\LogInManager $logInManager) {
+            $this->blogView = $blogView;
             $this->layoutView = $layoutView;
-            $this->manager = $manager;
+            $this->blogManager = $blogManager;
+            $this->logInManager = $logInManager;
+
+            if ($blogView->newBlogPostRequest()) {
+                $this->insertBlogPost();
+            }
+            
+            $this->getBlogPosts();
         }
 
-        //Byt namn flytta på Post och Session-variabel
-        public function initializeBlogPost () {
-            $username = $_SESSION['username'];
-            $blogContent = $this->view->getBlogPost();
-
-            if($username && $blogContent) {
-                $this->manager->addBlogPost($username, $_POST['BlogView::BlogContent'], $_POST['blogTitle']);
+        public function insertBlogPost(): void {
+            $username = $this->logInManager->getUsername();
+            $blogContent = $this->blogView->getBlogContent();
+            $blogTitle = $this->blogView>getBlogTitle();
+            
+            if($username && $blogContent && $blogTitle) {
+                $this->blogManager->addBlogPost($username, $blogContent, $blogTitle);
 
             }
         }
 
-        public function getBlogPostArray () {
-            $this->manager->getBlogPosts();
+        public function getBlogPosts(): void {
+            $this->blogManager->getBlogPosts();
         }
     }

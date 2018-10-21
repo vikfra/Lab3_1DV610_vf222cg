@@ -5,6 +5,7 @@
         private static $name = 'RegisterView::UserName';
         private static $password = 'RegisterView::Password';
         private static $passwordRepeat = 'RegisterView::PasswordRepeat';
+        private static $registrationConfirmed = 'RegisterView::RegistrationConfirmed';
 
         public function response () {
             
@@ -14,7 +15,7 @@
         private function generateRegisterFormHTML() {
             return "
                 <h2>Register new user</h2>
-                <form action='?register' method='post' enctype='multipart/form-data'>
+                <form action='?registrationConfirmed&register' method='post' enctype='multipart/form-data'>
                     <fieldset>
                     <legend>Register a new user - Write username and password</legend>
                         <p id='RegisterView::Message'></p>
@@ -54,6 +55,14 @@
         public function getRequestPassWordRepeat () {
             if(isset($_POST[self::$passwordRepeat])) {
                 return $_POST[self::$passwordRepeat];
+            } else {
+                return false;
+            }
+        }
+
+        public function registrationRequest () {
+            if(isset($_GET['registrationConfirmed'])) {
+                return true;
             } else {
                 return false;
             }

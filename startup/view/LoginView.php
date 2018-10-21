@@ -79,7 +79,7 @@ class LoginView {
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $this->getCookie() .'" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $this->getUsernameCookie() .'" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -119,12 +119,36 @@ class LoginView {
 		return isset($_POST[self::$logout]);
 	}
 
-	public function getCookie() {
+	public function getUsernameCookie() {
 		if(isset($_COOKIE['username'])) {
 			return $_COOKIE['username'];
 		} else {
 			return "Admin";
 		}
+	}
+
+	public function getPasswordCookie() {
+		if(isset($_COOKIE['password'])) {
+			return $_COOKIE['password'];
+		} else {
+			return false;
+		}
+	}
+
+	public function getNameCookie() {
+		if(isset($_COOKIE['CookieName'])) {
+			return $_COOKIE['CookieName'];
+		} else {
+			return false;
+		}
+	}
+
+	public function unsetCookie() {
+		unset($_COOKIE['username']);
+		unset($_COOKIE['password']);
+
+		setcookie ('username', '', time() - (86400 * 30));
+		setcookie ('password', '', time() - (86400 * 30));
 	}
 
 	public function userWillBeRemembered () {

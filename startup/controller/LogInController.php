@@ -2,54 +2,53 @@
     namespace controller;
 
     class LogInController {
-        private $view;
+        private $logInView;
         private $layoutView;
-        private $manager;
+        private $logInManager;
 
-        public function __construct($view, $layoutView, \model\LogInManager $manager) {
-            $this->view = $view;
+        public function __construct(\view\LogInView $logInView, \view\LayoutView $layoutView, \model\LogInManager $logInManager) {
+            $this->logInView = $logInView;
             $this->layoutView = $layoutView;
-            $this->manager = $manager;
+            $this->logInManager = $logInManager;
         }
-        public function initializeLogIn () {
-            $username = $this->view->getRequestUserName();
-            $password = $this->view->getRequestPassWord();
-            $encryptedPassword = md5($password);
 
-            if (isset($_COOKIE['CookieName']) && isset($_COOKIE['CookiePassword']) && !$this->view->userHasLogOut()) {
-                $this->manager->authenticateLogIn($_COOKIE['CookieName'], $_COOKIE['CookiePassword'], false, true);
-                
+        public function initializeLogIn (): void {
+            $username = $this->logInView->getRequestUserName();
+            $password = $this->logInView->getRequestPassWord();
+            $hashedPassword = $this->logInManager->hashPassword($password);
 
-            } else if ($this->view->userHasLogIn() && !$this->view->userWillBeRemembered()) {
-                setcookie('username', $username);
+            $userWillBeRemembered = $this->logInView->userWillBeRemembered();
+            $logInWithCookie = $this->cookieLogIn();
 
-                if(isset($_COOKIE['username'])) {
-                    $_COOKIE['username'] = $username;
-                }
+            if ($logInWithCookie) {
+                $username = $this->logInView->getUsernameCookie();
+                $hashedPassword = $this->logInView->getPasswordCookie();
 
-                $validLogIn = $this->manager->validateLogIn($username, $password);
-                $authenticatedUser = $this->manager->authenticateLogIn($username, md5($password), false, false);
+                $this->logInManager->authenticateLogIn($username, $hashedPassword, $userWillBeRemembered, $logInWithCookie);
 
-            } else if ($this->view->userWillBeRemembered()) {
-                $validLogIn = $this->manager->validateLogIn($username, $password);
-                $authenticatedUser = $this->manager->authenticateLogIn($username, md5($password), true, false);
-                setcookie('CookieName', $username, time() + (86400 * 30));
-                setcookie('CookiePassword', $encryptedPassword, time() + (86400 * 30));
-                
+            } else if ($this->logInView->userHasLogIn() && !$userWillBeRemembered) {
+                $authenticatedUser = $this->logInManager->authenticateLogIn($username, $password, $userWillBeRemembered, $logInWithCookie);
 
-            } else if ($this->view->userHasLogOut()) {
-                $_SESSION['loggedIn'] = null;
-                $_SESSION['refreshed'] = null;
-                //session_destroy();
-                unset($_COOKIE['username']);
-                unset($_COOKIE['CookieName']);
-                unset($_COOKIE['CookiePassword']);
-                setcookie ('CookieName', '', time() - (86400 * 30));
-                setcookie ('CookiePassword', '', time() - (86400 * 30));
-                setcookie ('username', '', time() - (86400 * 30));
-                
-                $this->manager->message = 'Bye bye!';
+            } else if ($userWillBeRemembered) {
+                $authenticatedUser = $this->logInManager->authenticateLogIn($username, $password, $userWillBeRemembered, $logInWithCookie);
+
+                $this->logInManager->rememberUser($username, $hashedPassword);
+
+
+            } else if ($this->logInView->userHasLogOut()) {
+                $this->logInManager->destroySession();
+                $this->logInView->unsetCookie();
+
+                $this->logInManager->message = 'Bye bye!';
             } 
 
+        }
+
+        public function cookieLogIn() {
+            if (isset($_COOKIE['username']) && isset($_COOKIE['password']) && !$this->logInView->userHasLogOut()) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }

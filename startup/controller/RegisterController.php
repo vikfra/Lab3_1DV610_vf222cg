@@ -10,6 +10,11 @@
             $this->view = $view;
             $this->layoutView = $layoutView;
             $this->manager = $manager;
+
+            if ($view->registrationRequest()) {
+                $this->initializeRegistration();
+            }
+
         }
 
         public function initializeRegistration () {
@@ -19,11 +24,9 @@
 
             if($username && $password && $passwordRepeat) {
                 if($password == $passwordRepeat) {
-                    echo 'correct';
                     $this->manager->insertUser($username, $password);
                     header('Location: /Lab3_1DV610_vf222cg/startup/');
                 }
             }
         }
-
     }

@@ -1,8 +1,10 @@
 <?php
     namespace view;
-    
+
     class BlogView {
         private static $blogContent = 'BlogView::BlogContent';
+        private static $blogTitle = 'BlogView::BlogTitle';
+
         private $manager;
 
         public function __construct($manager){
@@ -24,8 +26,8 @@
 
         public function generateCreateBlogHTML () {
             return '
-                    <form action="?blog" method="post" enctype="multipart/form-data" id="blogForm name="blogForm">
-                        <input type="text" name="blogTitle" placeholder="Title"><br>
+                    <form action="?blog&addBlogPostConfirmed" method="post" enctype="multipart/form-data" id="blogForm name="blogForm">
+                        <input type="text" name="' . self::$blogTitle . '" placeholder="Title"><br>
                         <textarea rows="4" cols="50" id="Area" name="' . self::$blogContent . '"></textarea><br>
                         <input type="file" name="blogPic" accept="image/*">
                         <input type="submit">
@@ -43,8 +45,30 @@
             return $response;
         }
 
-        public function getBlogPost () {
-            return isset($_POST[self::$blogContent]);
+        public function getBlogContent () {
+            if(isset($_POST[self::$blogContent])) {
+                return $_POST[self::$blogContent];
+            } else {
+                return false;
+            }
         }
+
+        public function getBlogTitle () {
+            if(isset($_POST[self::$blogTitle])) {
+                return $_POST[self::$blogTitle];
+            } else {
+                return false;
+            }
+        }
+
+        public function newBlogPostRequest () {
+            if(isset($_GET['addBlogPostConfirmed'])) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
 
     }

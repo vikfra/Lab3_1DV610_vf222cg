@@ -8,10 +8,10 @@
         public $message;
 
         public function authenticateLogIn($username, $password, $willBeRemembered, $authWithCookie) {
-            if ($this->isAuthenticated($username, $password)) {
-                //$this->loggedIn = true;
+            if (!$this->validCredentials($username, $password)) {
+                return;
+            } else if ($this->isAuthenticated($username, $password, $authWithCookie)) {
                 $_SESSION['loggedIn'] = true;
-                echo 'hej';
                 $_SESSION['username'] = $username;
                 $this->setWelcomeMsg($authWithCookie, $willBeRemembered);
 
@@ -32,15 +32,22 @@
             }
         }
 
-        public function validateLogIn ($username, $password) {
+        public function validCredentials ($username, $password) {
             if (empty($username)) {
                 $this->message = 'Username is missing';
+                return false;
             } else if (empty($password)) {
                 $this->message = 'Password is missing';
-            } 
+                return false;
+            } else {
+                return true;
+            }
         }
 
-        public function isAuthenticated($username, $password) {
+        public function isAuthenticated($username, $password, $authWithCookie) {
+            if (!$authWithCookie) {
+                $password = $this->hashPassword($password);
+            }
             if ($this->hasAuthUser($username, $password) || $this->hasAuthAdmin($username, $password)) {
                 return true;
             } else {
@@ -52,7 +59,7 @@
             if($this->isSessionHijacked()) {
                 return false;
             }
-    
+
             $conn = DatabaseHelper::DBconnection();
             $sql = "SELECT * FROM users WHERE username=? and password=?";
             $stmt = mysqli_prepare($conn, $sql);
@@ -61,10 +68,8 @@
             $result = $stmt->get_result();
 
             if($result->num_rows == 1) {
-                echo 'Logged in!';
                 return true;
             } else {
-                echo 'Not Logged in';
                 return false;
             }
 
@@ -118,10 +123,32 @@
 
         public function unsetCookies () {
             unset($_COOKIE['username']);
-            unset($_COOKIE['CookieName']);
-            unset($_COOKIE['CookiePassword']);
-            setcookie ('CookieName', '', time() - (86400 * 30));
-            setcookie ('CookiePassword', '', time() - (86400 * 30));
+            unset($_COOKIE['password']);
+            setcookie ('password', '', time() - (86400 * 30));
             setcookie ('username', '', time() - (86400 * 30));
+        }
+
+        public function getUsername () {
+            if (isset($_SESSION['username'])) {
+                return $_SESSION['username'];
+            } else {
+                return false;
+            }
+        }
+
+        public function hashPassword (string $password): string {
+            return md5($password);
+        }
+
+        public function rememberUser (string $username, string $password): void {
+            setcookie('username', $username, time() + (86400 * 30));
+            setcookie('password', $password, time() + (86400 * 30));
+        }
+
+        public function destroySession() {
+            $_SESSION['loggedIn'] = null;
+            $_SESSION['refreshed'] = null;
+
+            $this->message = 'Bye bye!';
         }
     }
