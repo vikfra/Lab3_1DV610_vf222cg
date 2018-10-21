@@ -10,6 +10,7 @@ class LoginView {
 	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
+	private static $register = 'register';
 	private $manager;
 
 
@@ -17,47 +18,47 @@ class LoginView {
 		$this->manager = $manager;
 	}
 	
-	/**
-	 * Create HTTP response
-	 *
-	 * Should be called after a login attempt has been determined
-	 *
-	 * @return  void BUT writes to standard output and cookies!
-	 */
-	public function response() {
+	public function response(): string {
 		$message = $this->manager->message;
 		$isLoggedIn = $this->manager->isLoggedIn();
 
 		if ($isLoggedIn && $this->userHasLogOut() == false) {
-			if (!isset($_SESSION['refreshed'])) {
-				$response = $this->generateLogoutButtonHTML($message);
-			} else {
-				$message = '';
-				$response = $this->generateLogoutButtonHTML($message);
-			}
-			$_SESSION['refreshed'] = true;
-		} else if ($this->userHasLogOut() == true) {
+			$isRefreshed = $this->manager->isSessionRefreshed();
 
-			if (!isset($_SESSION['logoutRefresh'])) {
+			if (!$isRefreshed) {
+				$response = $this->generateLogoutButtonHTML($message);
+
+			} else {
+				$message = '';
+				$response = $this->generateLogoutButtonHTML($message);
+
+			}
+
+			$this->manager->setSessionRefreshed(true);
+
+		} else if ($this->userHasLogOut() == true) {
+			$isLogoutRefresh = $this->manager->isSessionLogoutRefreshed();
+
+			if (!$isLogoutRefresh) {
 				$response = $this->generateLoginFormHTML($message);
+
 			} else {
 				$message = '';
 				$response = $this->generateLoginFormHTML($message);
+
 			}
-			$_SESSION['logoutRefresh'] = true;
+
+			$this->manager->setSessionLogoutRefreshed(true);
+
 		} else {
 			$response = $this->generateLoginFormHTML($message);
+
 		}
-		//$response .= $this->generateLogoutButtonHTML($message);
+
 		return $response;
 	}
 
-	/**
-	* Generate HTML code on the output buffer for the logout button
-	* @param $message, String output message
-	* @return  void, BUT writes to standard output!
-	*/
-	private function generateLogoutButtonHTML($message) {
+	private function generateLogoutButtonHTML($message): string {
 		return '
 			<form  method="post" >
 				<p id="' . self::$messageId . '">' . $message .'</p>
@@ -66,12 +67,7 @@ class LoginView {
 		';
 	}
 	
-	/**
-	* Generate HTML code on the output buffer for the logout button
-	* @param $message, String output message
-	* @return  void, BUT writes to standard output!
-	*/
-	private function generateLoginFormHTML($message) {
+	private function generateLoginFormHTML($message): string {
 		return '
 			<form method="post" > 
 				<fieldset>
@@ -93,7 +89,7 @@ class LoginView {
 		';
 	}
 	
-	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
+
 	public function getRequestUserName() {
 		if(isset($_POST[self::$name])) {
 			return $_POST[self::$name];
@@ -102,8 +98,7 @@ class LoginView {
 		}
 	}
 
-
-	public function getRequestPassWord () {
+	public function getRequestPassWord() {
 		if(isset($_POST[self::$password])) {
 			return $_POST[self::$password];
 		} else {
@@ -111,15 +106,15 @@ class LoginView {
 		}
 	}
 
-	public function userHasLogIn () {
+	public function userHasLogIn(): bool {
 		return isset($_POST[self::$login]);
 	}
 
-	public function userHasLogOut () {
+	public function userHasLogOut(): bool {
 		return isset($_POST[self::$logout]);
 	}
 
-	public function getUsernameCookie() {
+	public function getUsernameCookie(): string {
 		if(isset($_COOKIE['username'])) {
 			return $_COOKIE['username'];
 		} else {
@@ -135,15 +130,23 @@ class LoginView {
 		}
 	}
 
-	public function getNameCookie() {
-		if(isset($_COOKIE['CookieName'])) {
-			return $_COOKIE['CookieName'];
+	public function hasUsernameCookie(): bool {
+		if(isset($_COOKIE['username'])) {
+			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public function unsetCookie() {
+	public function hasPasswordCookie(): bool {
+		if(isset($_COOKIE['password'])) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function unsetCookie(): void {
 		unset($_COOKIE['username']);
 		unset($_COOKIE['password']);
 
@@ -151,11 +154,11 @@ class LoginView {
 		setcookie ('password', '', time() - (86400 * 30));
 	}
 
-	public function userWillBeRemembered () {
+	public function userWillBeRemembered(): bool {
 		return isset($_POST[self::$keep]);
 	}
 
-	public function getButton () {
-		return "<a href='?register'>Register a new user</a>";
+	public function getButton(): string {
+		return "<a href='?" . self::$register . "'>Register a new user</a>";
 	}
 }

@@ -2,29 +2,28 @@
     namespace controller;
     
     class RegisterController {
-        private $view;
+        private $registerView;
         private $layoutView;
-        private $manager;
+        private $registerManager;
 
-        public function __construct($view, $layoutView, \model\RegisterManager $manager) {
-            $this->view = $view;
+        public function __construct(\view\RegisterView $registerView, \view\LayoutView $layoutView, \model\RegisterManager $registerManager) {
+            $this->registerView = $registerView;
             $this->layoutView = $layoutView;
-            $this->manager = $manager;
+            $this->registerManager = $registerManager;
 
-            if ($view->registrationRequest()) {
+            if ($registerView->registrationRequest()) {
                 $this->initializeRegistration();
             }
-
         }
 
-        public function initializeRegistration () {
-            $username = $this->view->getRequestUserName();
-            $password = $this->view->getRequestPassWord();
-            $passwordRepeat = $this->view->getRequestPassWordRepeat();
+        public function initializeRegistration (): void {
+            $username = $this->registerView->getRequestUserName();
+            $password = $this->registerView->getRequestPassWord();
+            $passwordRepeat = $this->registerView->getRequestPassWordRepeat();
 
             if($username && $password && $passwordRepeat) {
                 if($password == $passwordRepeat) {
-                    $this->manager->insertUser($username, $password);
+                    $this->registerManager->insertUser($username, $password);
                     header('Location: /Lab3_1DV610_vf222cg/startup/');
                 }
             }

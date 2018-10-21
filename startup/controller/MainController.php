@@ -29,7 +29,7 @@
             if ($this->layoutView->hasRegistration()) {
                 $this->runRegistrationMVC($isLoggedIn);
 
-            } else if ($this->layoutView->hasCheckBlogPosts() || $this->layoutView->hasCreateBlogPosts() && $isLoggedIn) {
+            } else if (($this->layoutView->hasCheckBlogPosts() || $this->layoutView->hasCreateBlogPosts()) && $isLoggedIn) {
                 $this->runBlogPostMVC($isLoggedIn);
 
             } else {
@@ -37,7 +37,7 @@
             }
         }
 
-        public function runRegistrationMVC ($isLoggedIn) {
+        public function runRegistrationMVC (bool $isLoggedIn): void {
             $registerManager = new \model\RegisterManager();
             $registerView = new \view\RegisterView($registerManager);
             $registerController = new \controller\RegisterController($registerView, $this->layoutView, $registerManager);
@@ -45,7 +45,7 @@
             $this->layoutView->render($isLoggedIn, $registerView, $this->dateTimeView);
         }
 
-        public function runBlogPostMVC ($isLoggedIn) {
+        public function runBlogPostMVC (bool $isLoggedIn): void {
             $blogManager = new \model\BlogManager();
             $blogView = new \view\BlogView($blogManager);
             $blogController = new \controller\BlogController($blogView, $this->layoutView, $blogManager, $this->logInManager);
@@ -53,7 +53,7 @@
             $this->layoutView->render($isLoggedIn, $blogView, $this->dateTimeView);
         }
 
-        public function runLogInMVC () {
+        public function runLogInMVC (): void {
             $logInView = new \view\LoginView($this->logInManager);
             $logInController = new \controller\LogInController($logInView, $this->layoutView, $this->logInManager);
 

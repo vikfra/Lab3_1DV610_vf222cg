@@ -23,7 +23,7 @@
         public function insertBlogPost(): void {
             $username = $this->logInManager->getUsername();
             $blogContent = $this->blogView->getBlogContent();
-            $blogTitle = $this->blogView>getBlogTitle();
+            $blogTitle = $this->blogView->getBlogTitle();
             
             if($username && $blogContent && $blogTitle) {
                 $this->blogManager->addBlogPost($username, $blogContent, $blogTitle);

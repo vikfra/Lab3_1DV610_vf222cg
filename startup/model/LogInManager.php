@@ -4,35 +4,43 @@
     require_once('model/DBconnection.php');
 
     class LogInManager {
-        ///public $loggedIn = false;
         public $message;
+        private static $login = 'LogInManager::loggedIn';
+        private static $name = 'LogInManager::username';
+        private static $browser = 'LogInManager::browser';
+        private static $refreshed = 'LogInManager::refreshed';
+        private static $httpUserAgent = 'HTTP_USER_AGENT';
 
-        public function authenticateLogIn($username, $password, $willBeRemembered, $authWithCookie) {
+
+        public function authenticateLogIn(string $username, string $password, bool $willBeRemembered, bool $authWithCookie): void {
             if (!$this->validCredentials($username, $password)) {
                 return;
-            } else if ($this->isAuthenticated($username, $password, $authWithCookie)) {
-                $_SESSION['loggedIn'] = true;
-                $_SESSION['username'] = $username;
+
+            }
+
+            $isLoggedIn = $this->isAuthenticated($username, $password, $authWithCookie);
+
+            if ($isLoggedIn) {
+                $this->setSessionUsername($username);
+                $this->setSessionLogIn($isLoggedIn);
                 $this->setWelcomeMsg($authWithCookie, $willBeRemembered);
 
             } else {
-                // Kan vara fel, Om Admin är rätt och pw fel.
                 $this->setErrorMsg($authWithCookie, $willBeRemembered);
-                //$this->loggedIn = null;
-                $_SESSION['loggedIn'] = null;
+                $this->setSessionLogIn($isLoggedIn);
                 $this->unsetCookies();
             }
         }
 
-        public function isLoggedIn () {
-            if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] == true) {
+        public function isLoggedIn (): bool {
+            if (isset($_SESSION[self::$login]) && $_SESSION[self::$login] == true) {
                 return true;
             } else {
                 return false;
             }
         }
 
-        public function validCredentials ($username, $password) {
+        public function validCredentials (string $username, string $password): bool {
             if (empty($username)) {
                 $this->message = 'Username is missing';
                 return false;
@@ -44,7 +52,7 @@
             }
         }
 
-        public function isAuthenticated($username, $password, $authWithCookie) {
+        public function isAuthenticated(string $username, string $password, bool $authWithCookie): bool {
             if (!$authWithCookie) {
                 $password = $this->hashPassword($password);
             }
@@ -55,16 +63,19 @@
             }
         }
 
-        public function hasAuthUser ($username, $password) {
+        public function hasAuthUser (string $username, string $password): bool {
             if($this->isSessionHijacked()) {
                 return false;
             }
 
             $conn = DatabaseHelper::DBconnection();
+
             $sql = "SELECT * FROM users WHERE username=? and password=?";
+
             $stmt = mysqli_prepare($conn, $sql);
             $stmt->bind_param("ss", $username, $password);
             $stmt->execute();
+
             $result = $stmt->get_result();
 
             if($result->num_rows == 1) {
@@ -74,35 +85,49 @@
             }
 
             $stmt->close();
+
             mysqli_close($conn);
         }
 
-        public function hasAuthAdmin ($username, $password) {
+        public function hasAuthAdmin (string $username, string $password) {
             if($this->isSessionHijacked()) {
                 return false;
             } else if($username == 'Admin' && $password == 'Password') {
                 return true;
+
             } else if ($username == 'Admin' && $password == md5('Password')) {
                 return true;
+
             } else {
                 return false;
+
             }
         }
 
-        public function isSessionHijacked() {
-            if(isset($_SESSION['browser']) && $_SESSION['browser'] !== $_SERVER['HTTP_USER_AGENT']) {
+        public function isSessionHijacked(): bool {
+            if(isset($_SESSION[self::$browser]) && $_SESSION[self::$browser] !== $_SERVER[self::$httpUserAgent]) {
                 $this->message = '';
-                $_SESSION['loggedIn'] = null;
-                //$this->loggedIn = null;
+                $_SESSION[self::$login] = null;
+
                 session_destroy();
-                header('Location: /Lab3_1DV610_vf222cg/startup/'); ///Flytta till controller
+                header('Location: /Lab3_1DV610_vf222cg/startup/');
                 return true;
             } else {
                 return false;
             }
         }
 
-        public function setWelcomeMsg ($authWithCookie, $willBeRemembered) {
+        public function setSessionUsername (string $username): void {
+            $_SESSION[self::$name] = $username;
+
+        }
+
+        public function setSessionLogIn (bool $isLoggedIn): void {
+            $_SESSION[self::$login] = $isLoggedIn;
+
+        }
+
+        public function setWelcomeMsg (bool $authWithCookie, bool $willBeRemembered): void {
             
             if ($willBeRemembered == true) {
                 $this->message = 'Welcome and you will be remembered';
@@ -113,7 +138,7 @@
             }
         }
 
-        public function setErrorMsg($authWithCookie, $willBeRemembered) {
+        public function setErrorMsg(bool $authWithCookie, bool $willBeRemembered): void {
             if ($authWithCookie == true) {
                 $this->message = 'Wrong information in cookies';
             } else {
@@ -128,9 +153,9 @@
             setcookie ('username', '', time() - (86400 * 30));
         }
 
-        public function getUsername () {
-            if (isset($_SESSION['username'])) {
-                return $_SESSION['username'];
+        public function getUsername (): bool {
+            if (isset($_SESSION[self::$name])) {
+                return $_SESSION[self::$name];
             } else {
                 return false;
             }
@@ -145,10 +170,38 @@
             setcookie('password', $password, time() + (86400 * 30));
         }
 
-        public function destroySession() {
-            $_SESSION['loggedIn'] = null;
-            $_SESSION['refreshed'] = null;
+        public function destroySession(): void {
+            $_SESSION[self::$login] = null;
+            $_SESSION[self::$refreshed] = null;
 
             $this->message = 'Bye bye!';
+        }
+
+        public function isSessionRefreshed (): bool {
+            if(isset($_SESSION['refreshed'])) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public function setSessionRefreshed (bool $isRefreshed): void {
+            if($this->isSessionRefreshed()){
+                $_SESSION['refreshed'] = $isRefreshed;
+            }
+        }
+
+        public function isSessionLogoutRefreshed (): bool {
+            if(isset($_SESSION['logoutRefresh'])) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public function setSessionLogoutRefreshed (bool $isRefreshed): void {
+            if($this->isSessionLogoutRefreshed()){
+                $_SESSION['logoutRefresh'] = $isRefreshed;
+            }
         }
     }

@@ -10,6 +10,21 @@
             $this->logInView = $logInView;
             $this->layoutView = $layoutView;
             $this->logInManager = $logInManager;
+            
+            $this->initializeSession();
+        }
+
+        public function initializeSession() {
+            session_start();
+
+            $cookieParams = session_get_cookie_params();
+            $ID = session_id();
+
+            setcookie('PHPSESSID', $ID, 0, $cookieParams['path'], $cookieParams['domain'], true);
+
+            if(!isset($_SESSION['browser'])) {
+                $_SESSION['browser'] = $_SERVER['HTTP_USER_AGENT'];
+            } 
         }
 
         public function initializeLogIn (): void {
@@ -34,18 +49,18 @@
 
                 $this->logInManager->rememberUser($username, $hashedPassword);
 
-
             } else if ($this->logInView->userHasLogOut()) {
                 $this->logInManager->destroySession();
                 $this->logInView->unsetCookie();
 
-                $this->logInManager->message = 'Bye bye!';
             } 
-
         }
 
-        public function cookieLogIn() {
-            if (isset($_COOKIE['username']) && isset($_COOKIE['password']) && !$this->logInView->userHasLogOut()) {
+        public function cookieLogIn(): bool {
+            $hasUsernameCookie = $this->logInView->hasUsernameCookie();
+            $hasPasswordCookie = $this->logInView->hasPasswordCookie();
+
+            if ($hasUsernameCookie && $hasPasswordCookie && !$this->logInView->userHasLogOut()) {
                 return true;
             } else {
                 return false;

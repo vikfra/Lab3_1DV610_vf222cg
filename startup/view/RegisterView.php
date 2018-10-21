@@ -7,12 +7,12 @@
         private static $passwordRepeat = 'RegisterView::PasswordRepeat';
         private static $registrationConfirmed = 'RegisterView::RegistrationConfirmed';
 
-        public function response () {
+        public function response(): string {
             
             $response = $this->generateRegisterFormHTML();
             return $response;
         }
-        private function generateRegisterFormHTML() {
+        private function generateRegisterFormHTML(): string {
             return "
                 <h2>Register new user</h2>
                 <form action='?registrationConfirmed&register' method='post' enctype='multipart/form-data'>
@@ -35,7 +35,7 @@
             ";
         }
 
-        public function getRequestUserName() {
+        public function getRequestUserName(): bool {
             if(isset($_POST[self::$name])) {
                 return $_POST[self::$name];
             } else {
@@ -44,7 +44,7 @@
         }
     
     
-        public function getRequestPassWord () {
+        public function getRequestPassWord(): bool {
             if(isset($_POST[self::$password])) {
                 return $_POST[self::$password];
             } else {
@@ -52,7 +52,7 @@
             }
         }
 
-        public function getRequestPassWordRepeat () {
+        public function getRequestPassWordRepeat(): bool {
             if(isset($_POST[self::$passwordRepeat])) {
                 return $_POST[self::$passwordRepeat];
             } else {
@@ -60,7 +60,7 @@
             }
         }
 
-        public function registrationRequest () {
+        public function registrationRequest (): bool {
             if(isset($_GET['registrationConfirmed'])) {
                 return true;
             } else {
@@ -68,7 +68,7 @@
             }
         }
 
-        public function getButton () {
+        public function getButton (): string {
             return "<a href='?'>Back to login</a>";
         }
 

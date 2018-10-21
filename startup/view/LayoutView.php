@@ -4,12 +4,15 @@
     class LayoutView {
 
         private $manager;
+        private static $blog = 'BlogView::Blog';
+        private static $createBlogPost = 'BlogView::CreateBlogPost';
+        private static $register = 'register';
 
-        public function __construct($manager) {
+        public function __construct(\model\LogInManager $manager) {
           $this->manager = $manager;
         }
         
-        public function render($isLoggedIn, $view, DateTimeView $dtv) {
+        public function render(bool $isLoggedIn, $view, DateTimeView $dtv) {
           echo '<!DOCTYPE html>
             <html>
               <head>
@@ -33,7 +36,7 @@
           ';
         }
         
-        private function renderIsLoggedIn($isLoggedIn, $view) {
+        private function renderIsLoggedIn(bool $isLoggedIn, $view): string {
           if ($isLoggedIn) {
             return '<h2>Logged in</h2>';
           }
@@ -42,41 +45,41 @@
           }
         }
 
-        private function generateCreateBlogButtonHTML($isLoggedIn) {
+        private function generateCreateBlogButtonHTML(bool $isLoggedIn): string {
           if($isLoggedIn) {
-            return "<a href='?createBlog'>Create new blog post</a>";
+            return "<a href='?" . self::$createBlogPost . "'>Create new blog post</a>";
           } else {
             return '';
           }
 
         }
 
-        private function generateBlogFeedButtonHTML($isLoggedIn) {
+        private function generateBlogFeedButtonHTML(bool $isLoggedIn): string {
           if($isLoggedIn) {
-            return "<a href='?blog'>Check all blog posts</a>";
+            return "<a href='?" . self::$blog . "'>Check all blog posts</a>";
           } else {
             return '';
           }
         }
 
-        public function hasRegistration () {
-          if(isset($_GET['register'])) {
+        public function hasRegistration (): bool {
+          if(isset($_GET[self::$register])) {
               return true;
           } else {
               return false;
           }
         }
 
-        public function hasCheckBlogPosts () {
-          if(isset($_GET['blog'])) {
+        public function hasCheckBlogPosts (): bool {
+          if(isset($_GET[self::$blog])) {
               return true;
           } else {
               return false;
           }
       }
 
-      public function hasCreateBlogPosts () {
-        if(isset($_GET['createBlog'])) {
+      public function hasCreateBlogPosts (): bool {
+        if(isset($_GET[self::$createBlogPost])) {
             return true;
         } else {
             return false;
