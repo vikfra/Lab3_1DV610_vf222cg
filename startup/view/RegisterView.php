@@ -1,4 +1,6 @@
 <?php
+    namespace view;
+
     class RegisterView {
         private static $name = 'RegisterView::UserName';
         private static $password = 'RegisterView::Password';
@@ -60,4 +62,5 @@
         public function getButton () {
             return "<a href='?'>Back to login</a>";
         }
+
     }

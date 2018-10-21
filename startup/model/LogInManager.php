@@ -4,22 +4,31 @@
     require_once('model/DBconnection.php');
 
     class LogInManager {
-        public $loggedIn = false;
+        ///public $loggedIn = false;
         public $message;
 
         public function authenticateLogIn($username, $password, $willBeRemembered, $authWithCookie) {
             if ($this->isAuthenticated($username, $password)) {
-                $this->loggedIn = true;
+                //$this->loggedIn = true;
                 $_SESSION['loggedIn'] = true;
+                echo 'hej';
                 $_SESSION['username'] = $username;
                 $this->setWelcomeMsg($authWithCookie, $willBeRemembered);
 
             } else {
                 // Kan vara fel, Om Admin är rätt och pw fel.
                 $this->setErrorMsg($authWithCookie, $willBeRemembered);
-                $this->loggedIn = null;
+                //$this->loggedIn = null;
                 $_SESSION['loggedIn'] = null;
                 $this->unsetCookies();
+            }
+        }
+
+        public function isLoggedIn () {
+            if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] == true) {
+                return true;
+            } else {
+                return false;
             }
         }
 
@@ -79,7 +88,7 @@
             if(isset($_SESSION['browser']) && $_SESSION['browser'] !== $_SERVER['HTTP_USER_AGENT']) {
                 $this->message = '';
                 $_SESSION['loggedIn'] = null;
-                $this->loggedIn = null;
+                //$this->loggedIn = null;
                 session_destroy();
                 header('Location: /Lab3_1DV610_vf222cg/startup/'); ///Flytta till controller
                 return true;

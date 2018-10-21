@@ -1,4 +1,6 @@
 <?php
+    namespace view;
+    
     class BlogView {
         private static $blogContent = 'BlogView::BlogContent';
         private $manager;

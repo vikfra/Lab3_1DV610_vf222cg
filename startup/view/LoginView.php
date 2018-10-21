@@ -1,4 +1,5 @@
 <?php
+namespace view;
 
 class LoginView {
 	private static $login = 'LoginView::Login';
@@ -25,8 +26,9 @@ class LoginView {
 	 */
 	public function response() {
 		$message = $this->manager->message;
+		$isLoggedIn = $this->manager->isLoggedIn();
 
-		if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] == true && $this->userHasLogOut() == false) {
+		if ($isLoggedIn && $this->userHasLogOut() == false) {
 			if (!isset($_SESSION['refreshed'])) {
 				$response = $this->generateLogoutButtonHTML($message);
 			} else {
